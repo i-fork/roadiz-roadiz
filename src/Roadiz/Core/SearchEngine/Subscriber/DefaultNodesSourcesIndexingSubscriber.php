@@ -9,22 +9,11 @@ use RZ\Roadiz\Core\Entities\NodesSources;
 use RZ\Roadiz\Core\Entities\NodeTypeField;
 use RZ\Roadiz\Core\Entities\Tag;
 use RZ\Roadiz\Core\Events\NodesSources\NodesSourcesIndexingEvent;
-use RZ\Roadiz\Core\Handlers\HandlerFactory;
 use RZ\Roadiz\Core\SearchEngine\SolariumNodeSource;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final class DefaultNodesSourcesIndexingSubscriber implements EventSubscriberInterface
 {
-    private HandlerFactory $handlerFactory;
-
-    /**
-     * @param HandlerFactory $handlerFactory
-     */
-    public function __construct(HandlerFactory $handlerFactory)
-    {
-        $this->handlerFactory = $handlerFactory;
-    }
-
     /**
      * @inheritDoc
      */

@@ -19,15 +19,12 @@ use RZ\Roadiz\Utils\DebugBar\DataCollector\VersionsCollector;
 
 final class RoadizDebugBar extends DebugBar
 {
-    private Container $container;
-
     /**
      * @param Container $container
      * @throws DebugBarException
      */
     public function __construct(Container $container)
     {
-        $this->container = $container;
         $this->addCollector($container[MessagesCollector::class]);
         $this->addCollector(new ThemesCollector($container['themeResolver'], $container['requestStack']));
         $this->addCollector(new VersionsCollector());

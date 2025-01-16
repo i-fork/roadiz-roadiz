@@ -119,3 +119,4 @@ bower_components
 .bower-registry
 .bower-tmp
 /phpunit.xml
+/compose.override.yml
