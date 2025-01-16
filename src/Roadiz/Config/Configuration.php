@@ -140,8 +140,11 @@ EOD
                         ->cannotBeEmpty()
                         ->beforeNormalization()
                             ->always()
-                            ->then(function (string $v) {
-                                return strtolower(preg_replace('#[^a-z^A-Z^_]#', '_', trim($v)));
+                            ->then(function ($v) {
+                                if (is_string($v)) {
+                                    return strtolower(preg_replace('#[^a-z^A-Z^_]#', '_', trim($v)));
+                                }
+                                return $v;
                             })
                         ->end()
                     ->end()

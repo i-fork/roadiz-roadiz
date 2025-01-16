@@ -58,9 +58,7 @@ class NodeServiceProvider implements ServiceProviderInterface
                 $c[NodeMover::class]
             ));
             $dispatcher->addSubscriber(
-                new DefaultNodesSourcesIndexingSubscriber(
-                    $c['factory.handler']
-                )
+                new DefaultNodesSourcesIndexingSubscriber()
             );
             return $dispatcher;
         });

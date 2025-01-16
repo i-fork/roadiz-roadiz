@@ -311,70 +311,71 @@ class ContactFormManager extends EmailManager
             (count($this->request->getAcceptableContentTypes()) === 1 && $this->request->getAcceptableContentTypes()[0] === 'application/json') ||
             ($this->request->attributes->has('_format') && $this->request->attributes->get('_format') === 'json');
 
-        if ($this->form->isSubmitted()) {
-            if ($this->form->isSubmitted() && $this->form->isValid()) {
-                try {
-                    $this->handleFiles();
-                    $this->handleFormData($this->form);
+        if (!$this->form->isSubmitted()) {
+            return null;
+        }
+        if ($this->form->isValid()) {
+            try {
+                $this->handleFiles();
+                $this->handleFormData($this->form);
 
-                    if ($this->send() > 0) {
-                        if ($returnJson) {
-                            $responseArray = [
-                                'statusCode' => Response::HTTP_OK,
-                                'status' => 'success',
-                                'message' => $this->translator->trans($this->successMessage),
-                            ];
-                            return new JsonResponse($responseArray);
-                        } else {
-                            if ($this->request->hasPreviousSession()) {
-                                /** @var Session $session */
-                                $session = $this->request->getSession();
-                                $session->getFlashBag()
-                                    ->add('confirm', $this->translator->trans($this->successMessage));
-                            }
-
-                            $this->redirectUrl = $this->redirectUrl !== null ? $this->redirectUrl : $this->request->getUri();
-                            return new RedirectResponse($this->redirectUrl);
+                if ($this->send() > 0) {
+                    if ($returnJson) {
+                        $responseArray = [
+                            'statusCode' => Response::HTTP_OK,
+                            'status' => 'success',
+                            'message' => $this->translator->trans($this->successMessage),
+                        ];
+                        return new JsonResponse($responseArray);
+                    } else {
+                        if ($this->request->hasPreviousSession()) {
+                            /** @var Session $session */
+                            $session = $this->request->getSession();
+                            $session->getFlashBag()
+                                ->add('confirm', $this->translator->trans($this->successMessage));
                         }
-                    } else {
-                        $this->form->addError(new FormError('Contact form could not be sent.'));
+
+                        $this->redirectUrl = $this->redirectUrl !== null ? $this->redirectUrl : $this->request->getUri();
+                        return new RedirectResponse($this->redirectUrl);
                     }
-                } catch (BadFormRequestException $e) {
-                    if (null !== $e->getFieldErrored() && $this->form->has($e->getFieldErrored())) {
-                        $this->form->get($e->getFieldErrored())->addError(new FormError($e->getMessage()));
-                    } else {
-                        $this->form->addError(new FormError($e->getMessage()));
+                } else {
+                    $this->form->addError(new FormError('Contact form could not be sent.'));
+                }
+            } catch (BadFormRequestException $e) {
+                if (null !== $e->getFieldErrored() && $this->form->has($e->getFieldErrored())) {
+                    $this->form->get($e->getFieldErrored())->addError(new FormError($e->getMessage()));
+                } else {
+                    $this->form->addError(new FormError($e->getMessage()));
+                }
+            }
+        }
+        if ($returnJson) {
+            /*
+             * If form has errors during AJAX
+             * request we sent them.
+             */
+            $errorPerForm = [];
+            foreach ($this->form as $child) {
+                if (!$child->isValid()) {
+                    foreach ($child->getErrors() as $error) {
+                        $errorPerForm[$child->getName()][] = $this->translator->trans($error->getMessage());
                     }
                 }
             }
-            if ($returnJson) {
-                /*
-                 * If form has errors during AJAX
-                 * request we sent them.
-                 */
-                $errorPerForm = [];
-                foreach ($this->form as $child) {
-                    if (!$child->isValid()) {
-                        foreach ($child->getErrors() as $error) {
-                            $errorPerForm[$child->getName()][] = $this->translator->trans($error->getMessage());
-                        }
-                    }
-                }
-                $responseArray = [
-                    'statusCode' => Response::HTTP_BAD_REQUEST,
-                    'status' => 'danger',
-                    'message' => $this->translator->trans($this->failMessage),
-                    'errors' => (string) $this->form->getErrors(),
-                    'errorsPerForm' => $errorPerForm,
-                ];
-                /*
-                 * BC: Still return 200 if form is not valid for Ajax forms
-                 */
-                return new JsonResponse(
-                    $responseArray,
-                    $this->useRealResponseCode() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK
-                );
-            }
+            $responseArray = [
+                'statusCode' => Response::HTTP_BAD_REQUEST,
+                'status' => 'danger',
+                'message' => $this->translator->trans($this->failMessage),
+                'errors' => (string) $this->form->getErrors(),
+                'errorsPerForm' => $errorPerForm,
+            ];
+            /*
+             * BC: Still return 200 if form is not valid for Ajax forms
+             */
+            return new JsonResponse(
+                $responseArray,
+                $this->useRealResponseCode() ? Response::HTTP_BAD_REQUEST : Response::HTTP_OK
+            );
         }
         return null;
     }

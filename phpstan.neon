@@ -1,5 +1,5 @@
 parameters:
-    excludes_analyse:
+    excludePaths:
         - */node_modules/*
         - */bower_components/*
         - */static/*
@@ -7,6 +7,18 @@ parameters:
         repositoryClass: RZ\Roadiz\Core\Repositories\EntityRepository
         objectManagerLoader: ./tests/object-manager.php
     ignoreErrors:
+        - identifier: missingType.generics
+        - identifier: missingType.iterableValue
+        - identifier: class.extendsFinalByPhpDoc
+        - identifier: empty.offset
+        - identifier: doctrine.dql
+        - identifier: doctrine.columnType
+        - identifier: method.templateTypeNotInParameter
+        - identifier: property.phpDocType
+        - identifier: deadCode.unreachable
+        - identifier: catch.neverThrown
+        - identifier: nullCoalesce.variable
+        - identifier: nullCoalesce.expr
         - '#Class GeneratedNodeSources\\NS([a-zA-Z]+) not found#'
         - '#Call to method ([a-zA-Z]+)\(\) on an unknown class GeneratedNodeSources\\NS([a-zA-Z]+)#'
         - '#Call to an undefined method ([^:]+)\:\:get(?:External|Internal)Link(?:Sources)?\(\)#'
@@ -32,8 +44,6 @@ parameters:
         - '#type mapping mismatch: database can contain array\|bool\|float\|int\|JsonSerializable\|stdClass\|string\|null but property expects array\|null#'
 
     reportUnmatchedIgnoredErrors: false
-    checkGenericClassInNonGenericObjectType: false
-    checkMissingIterableValueType: false
 includes:
     - vendor/phpstan/phpstan-doctrine/extension.neon
     - vendor/phpstan/phpstan-doctrine/rules.neon

@@ -13,6 +13,7 @@ use RZ\Roadiz\Core\Events\LocaleSubscriber;
 use RZ\Roadiz\Core\Events\LoggableUsernameSubscriber;
 use RZ\Roadiz\Core\Events\MaintenanceModeSubscriber;
 use RZ\Roadiz\Core\Events\NodeDuplicationSubscriber;
+use RZ\Roadiz\Core\Events\NodeExplorerListEventSubscriber;
 use RZ\Roadiz\Core\Events\NodeRedirectionSubscriber;
 use RZ\Roadiz\Core\Events\NodeSourcePathSubscriber;
 use RZ\Roadiz\Core\Events\NodesSourcesUniversalSubscriber;
@@ -93,6 +94,7 @@ class EventDispatcherServiceProvider implements \Pimple\ServiceProviderInterface
             $dispatcher->addSubscriber(new RoutingCacheEventSubscriber());
             $dispatcher->addSubscriber(new TemplatesCacheEventSubscriber());
             $dispatcher->addSubscriber(new TranslationsCacheEventSubscriber());
+            $dispatcher->addSubscriber(new NodeExplorerListEventSubscriber());
             $dispatcher->addSubscriber(new ReverseProxyCacheEventSubscriber(
                 $c,
                 $c[MessageBusInterface::class],

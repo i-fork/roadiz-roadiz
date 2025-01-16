@@ -334,11 +334,18 @@ class EntityRepository extends \Doctrine\ORM\EntityRepository implements Contain
 
         // Add ordering
         foreach ($orders as $key => $value) {
-            if (strpos($key, static::NODE_ALIAS . '.') !== false &&
-                $this->hasJoinedNode($qb, $alias)) {
+            if (strpos($key, 'node.') !== false) {
+                if (!$this->hasJoinedNode($qb, $alias)) {
+                    $qb->innerJoin($alias . '.node', static::NODE_ALIAS);
+                }
+                $prefix = static::NODE_ALIAS . '.';
+                $key = str_replace('node.', $prefix, $key);
+                $qb->addOrderBy($key, $value);
+            } elseif (strpos($key, static::NODE_ALIAS . '.') !== false && $this->hasJoinedNode($qb, $alias)) {
                 $qb->addOrderBy($key, $value);
             } elseif (strpos($key, static::NODESSOURCES_ALIAS . '.') !== false &&
-                $this->hasJoinedNodesSources($qb, $alias)) {
+                $this->hasJoinedNodesSources($qb, $alias)
+            ) {
                 $qb->addOrderBy($key, $value);
             } else {
                 $qb->addOrderBy($alias . '.' . $key, $value);
